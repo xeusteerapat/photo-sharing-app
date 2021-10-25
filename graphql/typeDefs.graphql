@@ -1,0 +1,30 @@
+type Photo {
+  id: ID!
+  url: String!
+  name: String!
+  description: String
+  category: PhotoCategory!
+}
+
+enum PhotoCategory {
+  SELFIE
+  PORTRAIT
+  ACTION
+  LANDSCAPE
+  GRAPHIC
+}
+
+type Query {
+  totalPhotos: Int!
+  allPhotos: [Photo!]!
+}
+
+type Mutation {
+  postPhoto(input: PostPhotoInput!): Photo!
+}
+
+input PostPhotoInput {
+  name: String!
+  category: PhotoCategory = PORTRAIT
+  description: String
+}
