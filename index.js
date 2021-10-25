@@ -19,24 +19,31 @@ dotenv.config();
 
 // Connection URL
 const url = `mongodb://${process.env.MONGO_INITDB_ROOT_USERNAME}:${process.env.MONGO_INITDB_ROOT_PASSWORD}@localhost:27017`;
-const mongoDbClient = new MongoClient(url);
 
 async function startApolloServer(typeDefs, resolvers) {
   const app = express();
   const httpServer = http.createServer(app);
 
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    plugins: [
-      ApolloServerPluginDrainHttpServer({ httpServer }),
-      ApolloServerPluginLandingPageGraphQLPlayground(),
-    ],
-  });
-
   try {
     // Connect DB
-    await connectDB(mongoDbClient);
+    const mongoDbClient = await MongoClient.connect(url, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    const mongoDB = await connectDB(mongoDbClient);
+
+    const server = new ApolloServer({
+      typeDefs,
+      resolvers,
+      plugins: [
+        ApolloServerPluginDrainHttpServer({ httpServer }),
+        ApolloServerPluginLandingPageGraphQLPlayground(),
+      ],
+      context: {
+        db: mongoDB,
+      },
+    });
 
     await server.start();
     server.applyMiddleware({
@@ -57,8 +64,6 @@ async function startApolloServer(typeDefs, resolvers) {
     );
   } catch (error) {
     console.error(error);
-  } finally {
-    mongoDbClient.close();
   }
 }
 
