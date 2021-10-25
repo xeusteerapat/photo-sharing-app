@@ -4,6 +4,7 @@ type Photo {
   name: String!
   description: String
   category: PhotoCategory!
+  postedBy: User!
 }
 
 enum PhotoCategory {
@@ -14,13 +15,28 @@ enum PhotoCategory {
   GRAPHIC
 }
 
+type User {
+  githubLogin: ID!
+  name: String
+  avatar: String
+  postedPhotos: [Photo!]!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
 type Query {
   totalPhotos: Int!
   allPhotos: [Photo!]!
+  totalUsers: Int!
+  allUsers: [User!]!
 }
 
 type Mutation {
   postPhoto(input: PostPhotoInput!): Photo!
+  githubAuth(code: String!): AuthPayload!
 }
 
 input PostPhotoInput {
